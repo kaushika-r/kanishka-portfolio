@@ -402,13 +402,42 @@ nav.mainnav{ display:flex; align-items:center; justify-content:space-between; pa
    paragraph only so it never touches .hl's other, larger usages. */
 .about-copy .hl-word{ background:linear-gradient(100deg, var(--yellow), var(--yellow-deep)); color:var(--paper); font-weight:700; padding:1px 8px; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
 .about-photos{ position:relative; min-height:420px; }
-.poly{ position:absolute; background:var(--paper-2); border:1.5px solid var(--purple); box-shadow:var(--shadow-hard); border-radius:3px; padding:10px 10px 34px; }
-.poly img{ width:100%; height:100%; object-fit:cover; filter:filter:grayscale(1) contrast(1.25) brightness(0.95); }
+/* Themed Polaroid frame — same physical idea as a real Polaroid (a photo
+   set into a frame with a noticeably thicker bottom strip for the caption)
+   re-colored into the site's own navy/electric-blue/gold system instead of
+   the generic white paper. --cap-band is the single source of truth for how
+   tall that bottom strip is: it drives both the frame's own padding-bottom
+   (so the photo's cover-fit box stops exactly there) and the ::before "caption
+   plate" behind the text, so the two can never drift out of sync — the photo
+   is never able to bleed into the caption strip, and the caption never has to
+   float unbacked over open photo. Overflow:hidden clips the photo's cover-fit
+   corners and the plate to the frame's own rounded corners. */
+.poly{
+  --cap-band: 40px;
+  position:absolute; overflow:hidden;
+  background:var(--paper-2);
+  border:2px solid var(--purple);
+  box-shadow:var(--shadow-hard), 0 0 0 1px rgba(61,123,255,0.14);
+  border-radius:7px;
+  padding:10px 10px var(--cap-band);
+}
+.poly img{ position:relative; width:100%; height:100%; object-fit:cover; filter:filter:grayscale(1) contrast(1.25) brightness(0.95); }
 .poly.p1{ width:62%; aspect-ratio:4/5; top:0; left:0; transform:rotate(-4deg); z-index:2; }
 .poly.p2{ width:52%; aspect-ratio:4/5; bottom:0; right:0; transform:rotate(5deg); z-index:1; background:linear-gradient(160deg, var(--night-2), var(--night-1)); color:var(--ink); display:flex; align-items:center; justify-content:center; text-align:center; }
 .poly.p2 .ph-label{ font-family:var(--f-mono); font-size:12px; letter-spacing:0.08em; padding:0 16px; text-transform:uppercase; opacity:0.75; }
-.poly .cap{ font-family:var(--f-hand); font-size:17px; position:absolute; bottom:8px; left:14px; color:var(--yellow); }
-.poly.p2 .cap{ color:var(--ink); opacity:0.85; }
+/* The Polaroid's "thick bottom strip" — sized to --cap-band, so it always
+   occupies exactly the padding-bottom band reserved above and nothing the
+   photo ever touches. A thin gold-to-blue hairline marks where photo ends
+   and caption plate begins, the way a real Polaroid's frame reads as one
+   physical object rather than a picture with a stray label under it. */
+.poly::before{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:var(--cap-band);
+  background:linear-gradient(180deg, rgba(3,10,26,0.15), rgba(3,10,26,0.4));
+  border-top:1px solid rgba(255,228,92,0.28);
+  pointer-events:none;
+}
+.poly .cap{ font-family:var(--f-hand); font-size:17px; position:absolute; left:14px; right:14px; bottom:0; height:var(--cap-band); display:flex; align-items:center; color:var(--yellow); line-height:1.25; }
+.poly.p2 .cap{ color:var(--ink); opacity:0.9; }
 
 .about-copy p{ font-size:18px; line-height:1.75; color:var(--ink-soft); margin-bottom:20px; }
 .about-copy p:first-of-type{ font-size:21px; color:var(--ink); }
@@ -422,7 +451,19 @@ nav.mainnav{ display:flex; align-items:center; justify-content:space-between; pa
      whichever card the overlap sits behind, the caption text always reads as
      clearly attached to its own photo instead of crowding the other one. */
   .about-photos{ min-height:340px; width:100%; max-width:340px; margin:0 auto; }
-  .poly .cap{ right:14px; background:rgba(7,19,46,0.62); padding:3px 8px; border-radius:3px; line-height:1.3; backdrop-filter:blur(2px); }
+  /* Caption fit fix: the card footprint/position/rotation/overlap are all
+     untouched (still driven by .poly.p1/.poly.p2's width+aspect-ratio+top/
+     left/bottom/right above) — only --cap-band grows, giving the caption
+     plate two to three lines of room on the narrower cards without ever
+     climbing into the photo above it (the ::before plate and the caption's
+     own inset both key off the same variable, see the base .poly rules). */
+  .poly{ --cap-band: 60px; }
+  .poly .cap{
+    left:10px; right:10px;
+    font-size:12.5px; line-height:1.3;
+    text-align:center; justify-content:center;
+    overflow-wrap:break-word;
+  }
   /* The photos above are a centred, width-capped column; the copy below had
      none of that and simply stretched edge-to-edge, so at the wider end of
      this breakpoint (near 900px) it read as a much wider, uncentred block
@@ -512,6 +553,12 @@ nav.mainnav{ display:flex; align-items:center; justify-content:space-between; pa
 .wcard .info h3{ font-family:var(--f-display); font-size:24px; letter-spacing:0.01em; }
 .wcard .info p{ font-family:var(--f-body); font-size:14px; color:rgba(255,244,194,0.75); margin-top:7px; line-height:1.55; max-width:60ch; }
 .wcard .info .view-project{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--yellow); margin-top:12px; display:inline-flex; align-items:center; gap:5px; }
+/* Small, tasteful external link — its own line under "View project", same
+   mono/uppercase card language but pulled into a subtle pill so it reads as
+   a distinct action rather than a second "view project" link. Only ever
+   used on the AI Production card. */
+.wcard-ig-link{ font-family:var(--f-mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink); margin-top:10px; padding:5px 11px; border:1px solid rgba(255,228,92,0.4); border-radius:100px; display:inline-flex; align-items:center; gap:5px; transition:color .2s ease, border-color .2s ease, background .2s ease; }
+.wcard-ig-link:hover, .wcard-ig-link:focus-visible{ color:var(--yellow); border-color:var(--yellow); background:rgba(255,228,92,0.1); }
 
 @media(max-width:640px){
   .work-era-stage{ width:92vw; height:calc(100vh - var(--work-sticky-top,72px) - 28px); height:calc(100svh - var(--work-sticky-top,72px) - 28px); max-height:600px; }
@@ -1245,20 +1292,35 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
       </div>
 
       <!-- ===============================
-           ADD AI PRODUCTION ASSET HERE
+           AI PRODUCTION ASSET
            (title adapted from "AI brand campaign video" to "AI Production" —
            all other details are the real, original content for this project)
            =============================== -->
-      <!-- PROJECT ASSET: replace the <div class="ph"> below with the AI-generated SaaS campaign video (mp4 or YouTube embed). Keep video muted, no autoplay sound. -->
       <div class="work-era-project">
         <article class="wcard s-med" tabindex="0" role="button" aria-haspopup="dialog"
           data-title="AI Production" data-tag="Campaign" data-role="Content Writer"
           data-org="Novaris Digital" data-what="Developed an AI-generated brand campaign video for a SaaS company to streamline creative ideation, assisting in video production and collaborating with designers and editors."
-          data-result="Part of pre-production content delivered across 20+ brands">
-          <div class="ph"><span>[ADD CAMPAIGN VIDEO]</span></div>
+          data-result="Part of pre-production content delivered across 20+ brands"
+          data-media="ai production.MP4">
+          <!-- Collapsed state: a plain photo thumbnail, identical in kind to
+               every other project card — no video element, no play icon, no
+               controls here. data-media (above) points the shared openModal()
+               at the real video instead of this thumbnail, so clicking this
+               card behaves exactly like clicking Kisthenics or Unseen Chennai:
+               it opens the same project-detail modal. The only difference is
+               what the modal finds once it's open — see the video-autoplay
+               comment beside openModal() for how audio starts there. -->
+          <div class="ph has-media">
+            <img class="media-fill" src="ai thumbnail.png" alt="AI Production" loading="lazy">
+          </div>
           <span class="tag">Campaign</span>
           <span class="expand-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></span>
-          <div class="info"><h3>AI Production</h3><p>An AI-generated campaign video produced for a SaaS company to streamline creative ideation.</p><span class="view-project">View project →</span></div>
+          <div class="info">
+            <h3>AI Production</h3>
+            <p>An AI-generated campaign video produced for a SaaS company to streamline creative ideation.</p>
+            <span class="view-project">View project →</span>
+            <a class="wcard-ig-link" href="https://www.instagram.com/reel/DVvtMLukdvA/?igsi=MTN1eW5pb3NhdXI3Zw==" target="_blank" rel="noopener noreferrer" aria-label="See AI Production on Instagram (opens in a new tab)">See on Instagram <span aria-hidden="true">↗</span></a>
+          </div>
         </article>
       </div>
 
@@ -1278,6 +1340,7 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
       <!-- Populated in openModal() from the clicked card's own media. The dashed
            label below is the fallback for projects that have no asset yet. -->
       <img id="pmMedia" class="pm-media-img" alt="" hidden>
+      <video id="pmMediaVideo" class="pm-media-img" controls muted playsinline hidden></video>
       <div class="ph" id="pmMediaPh"><span id="pmMediaLabel">[ADD PROJECT MEDIA]</span></div>
     </div>
     <div class="pm-body">
@@ -1493,7 +1556,8 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     var segCount = Math.max(workEraProjects.length - 1, 0);
     var stageH = workEraStage.getBoundingClientRect().height || window.innerHeight * 0.8;
     var perTransitionPx = (workEraPerTransitionVh() / 100) * window.innerHeight;
-    var trackH = segCount > 0 ? (stageH + segCount * perTransitionPx) : stageH;
+    var finalHoldPx = segCount > 0 ? perTransitionPx * WORK_FINAL_HOLD_FRACTION : 0;
+    var trackH = segCount > 0 ? (stageH + segCount * perTransitionPx + finalHoldPx) : stageH;
     workEraTrack.style.height = Math.round(trackH) + 'px';
   }
 
@@ -1506,6 +1570,20 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
      eases back to 0.96, dims and darkens underneath it. */
   var WORK_HOLD = 0.5;
   var WORK_SLIDE = 0.5;
+
+  /* The very last project only ever arrives via the rel===1 "slide in" branch
+     below, which settles into the exact same at-rest pose a rel===0 card
+     holds at — but it only reaches that pose in the last instant of the
+     runway (t===1), right where the sticky pin releases. With no scroll room
+     left after that, the pin lets go the same frame the card finishes
+     settling, so it never actually gets a hold — it just keeps moving with
+     the page immediately, unlike every earlier project which gets a real
+     WORK_HOLD-sized pause while it's the current (rel===0) card before the
+     next one starts sliding over it. finalHoldPx (used in sizeWorkEraTrack,
+     above) adds that same pause to the tail of the runway, purely as extra
+     pinned scroll room — see updateWorkEra below for how it's kept out of
+     the transition math itself, the same split testiTrack uses. */
+  var WORK_FINAL_HOLD_FRACTION = WORK_HOLD;
 
   function clamp01(t){ return t <= 0 ? 0 : (t >= 1 ? 1 : t); }
   function workEase(t){ t = clamp01(t); return t * t * (3 - 2 * t); } // smoothstep
@@ -1542,12 +1620,18 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     }
 
     var trackRect = workEraTrack.getBoundingClientRect();
-    var stageH = workEraStage.getBoundingClientRect().height;
-    var pinnedRoom = workEraTrack.offsetHeight - stageH;
-    var raw = pinnedRoom > 0 ? (-trackRect.top) / pinnedRoom : 0;
+    var segCount = projects.length - 1;     // number of project-to-project hand-offs
+    /* Only the segCount*perTransitionPx portion of the runway drives the
+       hand-offs; the trailing finalHoldPx (see sizeWorkEraTrack) is scroll
+       room with nothing left to compute — raw simply clamps at 1, so the
+       last project's rel===1 branch below settles at t=1 (fully in place,
+       same pose a rel===0 card rests at) and just stays there instead of
+       the pin releasing the instant it arrives. */
+    var perTransitionPx = (workEraPerTransitionVh() / 100) * window.innerHeight;
+    var transitionRoom = segCount * perTransitionPx;
+    var raw = transitionRoom > 0 ? (-trackRect.top) / transitionRoom : 0;
     raw = Math.max(0, Math.min(1, raw));
 
-    var segCount = projects.length - 1;     // number of project-to-project hand-offs
     var segFloat = raw * segCount;
     var segIndex = Math.min(Math.floor(segFloat), segCount - 1);
     var segProgress = segFloat - segIndex;
@@ -1681,17 +1765,30 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     if(link){ if(active){ link.removeAttribute('tabindex'); } else { link.setAttribute('tabindex', '-1'); } }
   }
 
-  var testiTicking = false;
-  function updateTesti(){
-    testiTicking = false;
-    if(!testiTrack || !testiStage || !testiSlides.length) return;
+  /* ---- one card per scroll: an eased "raw" progress that can't be outrun ----
+     updateTesti() used to read the scroll position and paint the slides from
+     it directly, every frame — a 1:1 mapping. That's exactly what let a
+     single big native scroll jump (Page Down, End, a fast trackpad fling,
+     dragging or clicking the scrollbar) skip a card's hand-off outright: the
+     scroll position lands far past one segment before any frame ever renders
+     the in-between card, so it just appears at the new card with no
+     transition ever shown.
+     testiRaw is now a separate, eased value that CHASES the scroll-derived
+     target instead of snapping straight to it: each frame it can move at
+     most one speed-limited step toward the target, tuned so crossing one
+     full card-to-card segment always takes at least ~230ms no matter how far
+     the scroll position itself jumped in a single native scroll. Ordinary
+     scrolling — wheel, trackpad, touch — almost never moves faster than that
+     cap between two animation frames, so it still tracks the scroll 1:1 and
+     feels exactly as direct as before; only an oversized jump gets smoothed
+     into a quick-but-visible hand-off through the card(s) in between, which
+     is what stops a normal scroll gesture from silently skipping one. */
+  var testiRaw = 0;
+  var testiAnimating = false;
+  var testiLastTs = 0;
+  var TESTI_MIN_SEGMENT_MS = 230;
 
-    if(testiSlides.length === 1){
-      testiSetSlide(testiSlides[0], 0, 1, true);
-      return;
-    }
-
-    var segCount = testiSlides.length - 1;
+  function testiTargetRaw(segCount){
     var trackRect = testiTrack.getBoundingClientRect();
     var perTransitionPx = (testiPerTransitionVh() / 100) * window.innerHeight;
     /* Only the segCount*perTransitionPx portion of the runway drives the
@@ -1701,8 +1798,10 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
        and stays there rather than the runway ending mid-arrival. */
     var transitionRoom = segCount * perTransitionPx;
     var raw = transitionRoom > 0 ? (-trackRect.top) / transitionRoom : 0;
-    raw = Math.max(0, Math.min(1, raw));
+    return Math.max(0, Math.min(1, raw));
+  }
 
+  function testiRender(raw, segCount){
     var segFloat = raw * segCount;
     var segIndex = Math.min(Math.floor(segFloat), segCount - 1);
     var segProgress = segFloat - segIndex;
@@ -1728,12 +1827,49 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     });
   }
 
+  function testiTick(ts){
+    if(!testiTrack || !testiStage || testiSlides.length < 2){ testiAnimating = false; return; }
+
+    var segCount = testiSlides.length - 1;
+    var target = testiTargetRaw(segCount);
+    var dt = testiLastTs ? Math.min(ts - testiLastTs, 48) : 16; // clamp a huge dt (e.g. backgrounded tab)
+    testiLastTs = ts;
+
+    var maxStep = ((1 / segCount) / TESTI_MIN_SEGMENT_MS) * dt;
+    var diff = target - testiRaw;
+    if(Math.abs(diff) > maxStep){
+      testiRaw += (diff > 0 ? 1 : -1) * maxStep;
+    } else {
+      testiRaw = target;
+    }
+
+    testiRender(testiRaw, segCount);
+
+    if(Math.abs(target - testiRaw) > 0.0008){
+      requestAnimationFrame(testiTick);
+    } else {
+      testiAnimating = false;
+      testiLastTs = 0;
+    }
+  }
+
+  function updateTesti(){
+    if(!testiTrack || !testiStage || !testiSlides.length) return;
+    if(testiSlides.length === 1){
+      testiSetSlide(testiSlides[0], 0, 1, true);
+      return;
+    }
+    if(!testiAnimating){
+      testiAnimating = true;
+      testiLastTs = 0;
+      requestAnimationFrame(testiTick);
+    }
+  }
+
   if(!reduced && testiTrack && testiStage && testiSlides.length){
     sizeTestiTrack();
     updateTesti();
-    window.addEventListener('scroll', function(){
-      if(!testiTicking){ testiTicking = true; requestAnimationFrame(updateTesti); }
-    }, { passive:true });
+    window.addEventListener('scroll', updateTesti, { passive:true });
     window.addEventListener('resize', function(){
       clearTimeout(window.__testiResizeT);
       window.__testiResizeT = setTimeout(function(){ sizeTestiTrack(); updateTesti(); }, 150);
@@ -1910,8 +2046,10 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
   var pmLink = document.getElementById('pmLink');
   var pmMediaLabel = document.getElementById('pmMediaLabel');
   var pmMedia = document.getElementById('pmMedia');
+  var pmMediaVideo = document.getElementById('pmMediaVideo');
   var pmMediaPh = document.getElementById('pmMediaPh');
   var lastFocused = null;
+  var VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v)(\?.*)?$/i;
 
   function openModal(card){
     pmTitle.textContent = card.getAttribute('data-title') || '';
@@ -1922,16 +2060,35 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     pmResult.textContent = card.getAttribute('data-result') || '';
     /* Media, read fresh from the card that was actually clicked. Reset first —
        unconditionally — so a project with no asset can never inherit the image
-       left behind by the previously opened project. data-media is an optional
-       per-card override (point it at a larger asset than the card thumbnail);
-       without one we reuse the card's own <img>, wherever it sits inside .ph. */
+       (or video) left behind by the previously opened project. data-media is an
+       optional per-card override (point it at a larger asset than the card
+       thumbnail) — AI Production uses it to point at "ai production.MP4" while
+       its own on-page card stays a plain thumbnail image; every other project
+       just reuses its card's own <img>. A video-extension source is routed to
+       the modal's own <video> instead of the <img>, so it opens here as a
+       real, playable video rather than a broken image. */
     var cardImg = card.querySelector('.ph img, .ph video source, .ph video');
     var mediaSrc = card.getAttribute('data-media') ||
                    (cardImg ? (cardImg.currentSrc || cardImg.getAttribute('src') || '') : '');
     pmMedia.removeAttribute('src');
     pmMedia.hidden = true;
+    pmMediaVideo.pause();
+    pmMediaVideo.removeAttribute('src');
+    pmMediaVideo.load();
+    pmMediaVideo.hidden = true;
     pmMediaPh.hidden = false;
-    if(mediaSrc){
+    if(mediaSrc && VIDEO_EXT_RE.test(mediaSrc)){
+      pmMediaVideo.src = mediaSrc;
+      pmMediaVideo.hidden = false;
+      pmMediaPh.hidden = true;
+      /* openModal is only ever reached from a real click or a keydown
+         (Enter/Space) on the card — both count as the user's own gesture —
+         so un-muting and playing right here, synchronously as the modal
+         opens, is allowed to carry sound. Native controls (already on
+         pmMediaVideo in the markup) stay exactly as they are. */
+      pmMediaVideo.muted = false;
+      pmMediaVideo.play();
+    } else if(mediaSrc){
       pmMedia.src = mediaSrc;
       pmMedia.alt = card.getAttribute('data-title') || '';
       pmMedia.hidden = false;
@@ -1950,6 +2107,14 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    /* Fully reset any modal video on close (the "collapsed" state the card
+       returns to is the plain thumbnail out in the Work section, which never
+       touches this element) — so the next time this or any other project is
+       opened, playback starts clean rather than resuming mid-scene, and
+       nothing keeps playing silently in the background. */
+    pmMediaVideo.pause();
+    pmMediaVideo.currentTime = 0;
+    pmMediaVideo.muted = true;
     if(lastFocused){ lastFocused.focus(); }
   }
   document.querySelectorAll('.wcard').forEach(function(card){
@@ -1962,6 +2127,10 @@ footer.site{ padding-top:44px; padding-bottom:34px; position:relative; }
     modal.querySelectorAll('[data-close]').forEach(function(el){ el.addEventListener('click', closeModal); });
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && modal.classList.contains('open')){ closeModal(); } });
   }
+
+  document.querySelectorAll('.wcard-ig-link').forEach(function(link){
+    link.addEventListener('click', function(e){ e.stopPropagation(); });
+  });
 
   /* ---- filmstrip scroll progress ---- */
   var railFill = document.getElementById('railFill');
